@@ -1,6 +1,6 @@
 #/bin/bash
-
 cd data
+PICARD="/usr/local/picard/dist/picard.jar"
 
 # uncompress the datafiles
 bunzip2 -k seq/*.bz2
@@ -15,6 +15,7 @@ sickle pe -f seq/W303_chrII_1.fastq -r seq/W303_chrII_2.fastq \
 mkdir fastqc_output	
 fastqc -o fastqc_output *.fastq
 # copy to your public_html
+mkdir ~/sites
 cp -r fastqc_output ~/sites/W303_fastqc_report
 
 # index the genome for bwa
@@ -26,5 +27,5 @@ W303_chrII_2.trim.fastq  > W303_chrII.sam
 
 # this creates the aligned SAM file
 # run picard to convert to bam and sort
-java -jar $PICARD/SortSam.jar I=W303_chrII.sam O=W303.sorted.bam CREATE_INDEX=true SO=coordinate
+java -jar $PICARD SortSam I=W303_chrII.sam O=W303.sorted.bam CREATE_INDEX=true SO=coordinate
 cd ..

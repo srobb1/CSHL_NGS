@@ -1,18 +1,20 @@
 cd data
 GENOME=genome/Saccharomyces.fa
 DICTIONARY=genome/Saccharomyces.dict
+PICARD=/usr/local/picard/dist/picard.jar
+GATK=/usr/local/GATK/GenomeAnalysisTK.jar
 
 # make index from picard
-java -jar $PICARD/CreateSequenceDictionary.jar \
+java -jar $PICARD CreateSequenceDictionary \
 R=$GENOME OUTPUT=$DICTIONARY
 
 # run de-duplicate
-java -jar $PICARD/MarkDuplicates.jar INPUT=W303.sorted.bam  \
+java -jar $PICARD MarkDuplicates INPUT=W303.sorted.bam  \
     OUTPUT=W303.dedup.bam METRICS_FILE=W303.dedup.metrics    \
     CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT
 
 # add the readgroup
-java -Xmx3g -jar $PICARD/AddOrReplaceReadGroups.jar INPUT=W303.dedup.bam \
+java -Xmx3g -jar $PICARD AddOrReplaceReadGroups INPUT=W303.dedup.bam \
     OUTPUT=W303.readgroup.bam SORT_ORDER=coordinate CREATE_INDEX=True \
     RGID=W303 RGLB=SRR527545 RGPL=Illumina RGPU=Genomic RGSM=W303 \
     VALIDATION_STRINGENCY=SILENT

@@ -2,6 +2,8 @@ QUERY_BAM=W303.realign.bam
 GENOME=genome/Saccharomyces.fa
 cd data
 
+GATK=/usr/local/GATK/GenomeAnalysisTK.jar
+
 # run the genotyper
 java -Xmx3g -jar $GATK -T UnifiedGenotyper \
     -glm SNP -I $QUERY_BAM -R $GENOME \
@@ -30,7 +32,7 @@ tabix -p vcf W303.GATK_raw.vcf.gz
 tabix -p vcf W303.GATK_filtered.vcf.gz
 tabix -p vcf W303.GATK_selected.vcf.gz
 
-BCFTOOLS=/usr/local/bcftools-1.1/bcftools
+BCFTOOLS=/usr/local/bcftools/bcftools
 $BCFTOOLS stats -F $GENOME -s - W303.GATK_raw.vcf.gz > W303.GATK_raw.vcf.stats
 $BCFTOOLS stats -F $GENOME -s - W303.GATK_filtered.vcf.gz > W303.GATK_filtered.vcf.stats
 $BCFTOOLS stats -F $GENOME -s - W303.GATK_selected.vcf.gz > W303.GATK_selected.vcf.stats
