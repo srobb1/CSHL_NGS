@@ -74,15 +74,15 @@ http:/<span class="kw">/</span><span class="ot">downloads.yeastgenome.org</span>
 
 $ tar zxf S288C_reference_genome_Current_Release.tgz</code></pre>
 <p>Run this script to fix the chromosome names in the download file so the will match the GFF file.</p>
-<pre class="sourceCode perl"><code class="sourceCode perl">perl CSHL_NGS/data/rename_seq.pl S288C_reference_genome_R64<span class="dv">-1</span>-1_20110203/S288C_reference_sequence_R64<span class="dv">-1</span>-1_20110203.fsa &gt; Saccharomyces.fa</code></pre>
+<pre class="sourceCode perl"><code class="sourceCode perl">perl CSHL_NGS/data/rename_seq.pl S288C_reference_genome_R64<span class="dv">-1-1_20110203</span>/S288C_reference_sequence_R64<span class="dv">-1-1_20110203</span>.fsa &gt; Saccharomyces.fa</code></pre>
 <ul>
 <li>You need to fix this GFF file so it doesn't have any sequence, to do this a grep to find where the '&gt;' lines are where the sequence as fasta is in there and find the first one.</li>
 </ul>
 <p>Commands to run</p>
-<pre class="sourceCode perl"><code class="sourceCode perl"><span class="fu">grep</span> -n <span class="kw">&quot;</span><span class="st">&gt;</span><span class="kw">&quot;</span> S288C_reference_genome_R64<span class="dv">-1</span>-1_20110203/saccharomyces_cerevisiae_R64<span class="dv">-1</span>-1_20110208.gff
+<pre class="sourceCode perl"><code class="sourceCode perl"><span class="fu">grep</span> -n <span class="kw">&quot;</span><span class="st">&gt;</span><span class="kw">&quot;</span> S288C_reference_genome_R64<span class="dv">-1-1_20110203</span>/saccharomyces_cerevisiae_R64<span class="dv">-1-1_20110208</span>.gff
 <span class="co"># note the number for the first &#39;&gt;&#39; - there are a few lines before that we want to drop so</span>
 <span class="co"># and the last position in the file we want is 16425 so we can use head </span>
-$ head -n <span class="dv">16425</span> S288C_reference_genome_R64<span class="dv">-1</span>-1_20110203/saccharomyces_cerevisiae_R64<span class="dv">-1</span>-1_20110208.gff &gt; saccharomyces_cerevisiae_R64<span class="dv">-1</span>-1_20110208.noseq.gff</code></pre>
+$ head -n <span class="dv">16425</span> S288C_reference_genome_R64<span class="dv">-1-1_20110203</span>/saccharomyces_cerevisiae_R64<span class="dv">-1-1_20110208</span>.gff &gt; saccharomyces_cerevisiae_R64<span class="dv">-1-1_20110208</span>.noseq.gff</code></pre>
 <ul>
 <li>Use this saccharomyces_cerevisiae_R64-1-1_20110208.noseq.gff for GFF file later needs.</li>
 </ul>

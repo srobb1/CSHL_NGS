@@ -9,87 +9,8 @@
   <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-  <style type="text/css">
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; }
-code > span.dt { color: #902000; }
-code > span.dv { color: #40a070; }
-code > span.bn { color: #40a070; }
-code > span.fl { color: #40a070; }
-code > span.ch { color: #4070a0; }
-code > span.st { color: #4070a0; }
-code > span.co { color: #60a0b0; font-style: italic; }
-code > span.ot { color: #007020; }
-code > span.al { color: #ff0000; font-weight: bold; }
-code > span.fu { color: #06287e; }
-code > span.er { color: #ff0000; font-weight: bold; }
-  </style>
 </head>
 <body>
-<pre class="sourceCode perl"><code class="sourceCode perl"><span class="co"># checkout the project</span>
-git clone git:/<span class="kw">/</span><span class="ot">github.com</span><span class="kw">/</span>hyphaltip/CSHL_NGS.git
-cd CSHL_NGS
-<span class="co"># uncompress the datafiles</span>
-cd example
-bunzip2 <span class="dt">*.</span>bz2
-gunzip genome/<span class="dt">*.</span>gz
-<span class="co"># trim the data</span>
-sickle pe <span class="kw">-f</span> W303_chrII_1.fastq <span class="kw">-r</span> W303_chrII_2.fastq \
-<span class="kw">-o</span> W303_chrII_1.trim.fastq <span class="kw">-p</span> W303_chrII_2.trim.fastq \
-<span class="kw">-s</span> W303_chrII_single.trim.fastq
-<span class="co"># run fastqc</span>
-<span class="fu">mkdir</span> fastqc_output 
-fastqc <span class="kw">-o</span> fastqc_output <span class="dt">*.</span>fastq
-<span class="co"># copy to your public_html</span>
-cp <span class="kw">-r</span> fastqc_output ~<span class="kw">/</span><span class="ot">public_html</span>
-<span class="co"># index the genome for bwa</span>
-<span class="ot">bwa index genome</span><span class="kw">/</span>Saccharomyces.fa
-<span class="co"># run bwa</span>
-bwa mem genome/Saccharomyces.fa W303_chrII_1.trim.fastq \
-W303_chrII_2.trim.fastq  &gt; W303_chrII.sam
-<span class="co"># run picard to convert to bam and sort</span>
-java -jar <span class="dt">$PICARD</span>/SortSam.jar I=W303_chrII.sam O=W303.sorted.bam CREATE_INDEX=true SO=coordinate
-<span class="co"># make index from picard</span>
-java -jar <span class="dt">$PICARD</span>/CreateSequenceDictionary.jar \
-R=genome/Saccharomyces.fa OUTPUT=genome/Saccharomyces.dict
-<span class="co"># also make index from samtools</span>
-samtools faidx genome/Saccharomyces.fa
-<span class="co"># run de-duplicate</span>
-java -jar <span class="dt">$PICARD</span>/MarkDuplicates.jar INPUT=W303.sorted.bam  \
-OUTPUT=W303.dedup.bam METRICS_FILE=W303.dedup.metrics    \
-CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT
-<span class="co"># add the readgroup</span>
-java <span class="kw">-X</span>mx3g -jar <span class="dt">$PICARD</span>/AddOrReplaceReadGroups.jar INPUT=W303.dedup.bam \
-  OUTPUT=W303.readgroup.bam SORT_ORDER=coordinate CREATE_INDEX=True \
-  RGID=W303 RGLB=SRR527545 RGPL=Illumina RGPU=Genomic RGSM=W303 \
-  VALIDATION_STRINGENCY=SILENT
-
-<span class="co"># Identify where to run the realignment based on finding variant sites</span>
-java <span class="kw">-X</span>mx3g -jar <span class="dt">$GATK</span>/GenomeAnalysisTK.jar <span class="kw">-T</span> RealignerTargetCreator \
- <span class="kw">-R</span> genome/Saccharomyces.fa \
- <span class="kw">-o</span> W303.intervals -I W303.readgroup.bam
-<span class="co"># run realignment</span>
-java <span class="kw">-X</span>mx3g -jar <span class="dt">$GATK</span>/GenomeAnalysisTK.jar <span class="kw">-T</span> IndelRealigner \
-    <span class="kw">-R</span> genome/Saccharomyces.fa \
-    <span class="kw">-t</span>argetIntervals W303.intervals -I W303.readgroup.bam \
-    <span class="kw">-o</span> W303.realign.bam
-<span class="co"># run the genotyper</span>
-java <span class="kw">-X</span>mx3g -jar <span class="dt">$GATK</span>/GenomeAnalysisTK.jar <span class="kw">-T</span> UnifiedGenotyper \
-   <span class="kw">-g</span>lm SNP -I W303.realign.bam <span class="kw">-R</span> genome/Saccharomyces.fa \
-  <span class="kw">-o</span> W303.GATK.vcf -nt <span class="dv">4</span>
-<span class="co"># filter the VCF</span>
-java <span class="kw">-X</span>mx3g -jar <span class="dt">$GATK</span>/GenomeAnalysisTK.jar \
-<span class="kw">-T</span> VariantFiltration <span class="kw">-o</span> W303.filtered.vcf \
---variant W303.GATK.vcf <span class="kw">-R</span> genome/Saccharomyces.fa \
--<span class="kw">-c</span>lusterWindowSize <span class="dv">10</span>  <span class="kw">-f</span>ilter <span class="kw">&quot;</span><span class="st">QD&lt;8.0</span><span class="kw">&quot;</span> <span class="kw">-f</span>ilterName QualByDepth \
-<span class="kw">-f</span>ilter <span class="kw">&quot;</span><span class="st">MQ&lt;=30.0</span><span class="kw">&quot;</span> <span class="kw">-f</span>ilterName MapQual \
-<span class="kw">-f</span>ilter <span class="kw">&quot;</span><span class="st">QUAL&lt;100</span><span class="kw">&quot;</span> <span class="kw">-f</span>ilterName QScore \
-<span class="kw">-f</span>ilter <span class="kw">&quot;</span><span class="st">MQ0&gt;=10 &amp;&amp; ((MQ0 / (1.0 * DP)) &gt; 0.1)</span><span class="kw">&quot;</span> <span class="kw">-f</span>ilterName MapQualRatio \
-<span class="kw">-f</span>ilter <span class="kw">&quot;</span><span class="st">FS&gt;60.0</span><span class="kw">&quot;</span> <span class="kw">-f</span>ilterName FisherStrandBias \
-<span class="kw">-f</span>ilter <span class="kw">&quot;</span><span class="st">HaplotypeScore &gt; 13.0</span><span class="kw">&quot;</span> <span class="kw">-f</span>ilterName HaplotypeScore &gt;&amp; output.filter.<span class="fu">log</span></code></pre>
+<p>https://github.com/hyphaltip/CSHL_NGS/blob/master/01_align_makebam.sh Checkout the repository to run the tutorial on the AMI instance git clone git://github.com/hyphaltip/CSHL_NGS.git Now run the scripts, first script will unzip some of the datafiles, run some indexing, and align the files ./01_align_makebam.sh</p>
 </body>
 </html>
