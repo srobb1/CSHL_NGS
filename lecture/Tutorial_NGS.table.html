@@ -30,14 +30,14 @@ code > span.er { color: #ff0000; font-weight: bold; }
   </style>
 </head>
 <body>
-<p>Data and scripts for this Tutorial and Lectures are available at <a href="https://github.com/hyphaltip/CSHL_NGS">https://github.com/hyphaltip/CSHL_NGS</a>.</p>
+<p>Data and scripts for this Tutorial and Lectures are available at <a href="https://github.com/srobb1/CSHL_NGS.git">https://github.com/srobb1/CSHL_NGS.git</a>.</p>
 <p>See the answers at <a href="/CSHL_NGS/lecture/Tutorial_steps.table.html">Tutorial answers</a> and the raw version of this file is in <a href="/CSHL_NGS/lecture/Tutorial_steps.table.md">Tutorial_steps.table.md</a></p>
 <h1 id="preparation-steps">Preparation Steps</h1>
 <ol type="1">
 <li>Checkout my github repo for this course.</li>
 </ol>
 <p>Using Git on the command line (or install Git for Mac)</p>
-<pre class="sourceCode perl"><code class="sourceCode perl">$ git clone git:/<span class="kw">/</span><span class="ot">github.com</span><span class="kw">/</span>hyphaltip/CSHL_NGS.git</code></pre>
+<pre class="sourceCode perl"><code class="sourceCode perl">  <span class="dt">$git</span> clone https:/<span class="kw">/</span><span class="ot">github.com</span><span class="kw">/s</span>robb1/CSHL_NGS.git</code></pre>
 <ol type="1">
 <li><p>The data you need are available from here. There are directions at the bottom if you want to see how the data are obtained but not necessary for this tutorial.</p></li>
 <li><p>We will use some data from a strain of yeast, W303 which has some drug resistance properties and mixed ancestry from the reference strain S288C. A project sequenced the genome and analyzed it to show amino acid alterations in ~800 genes. <a href="http://www.ncbi.nlm.nih.gov/pubmed/22977733">Ralser et al 2012</a>. We will attempt to replicate some aspects of this analysis (though note they did an assembly of the read not simply mapping them to the refeence).</p></li>
@@ -51,12 +51,12 @@ code > span.er { color: #ff0000; font-weight: bold; }
 </ol>
 <p><code>fastqc -h</code> to get help</p>
 <ol start="3" type="1">
-<li><p>Align reads to the genome using BWA. This requires you to also build and index for the genome. See the <a href="http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide34">lecture notes</a>. (bwa index)</p></li>
-<li><p>Realign reads with Picard and GATK <a href="http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41">based on lecture</a>. (picard)</p></li>
-<li><p>Fix the Read groups see <a href="http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41">this slide</a> (picard)</p></li>
-<li><p>Call SNPs with SAMTools - refer to the SAMtools manpage on mpileup for more details. <a href="http://samtools.sourceforge.net/">http://samtools.sourceforge.net/</a> <a href="http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide43">this slide</a></p></li>
-<li><p>Call SNPs with GATK, using <a href="http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide44">example from the lecture</a></p></li>
-<li><p>Run Filtering steps on GATK output SNPs to remove potential biased or low-quality ones using options <a href="http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide47">provided in lecture</a>.</p></li>
+<li><p>Align reads to the genome using BWA. This requires you to also build and index for the genome. See the <a href="http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide34">lecture notes</a>. (bwa index)</p></li>
+<li><p>Realign reads with Picard and GATK <a href="http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41">based on lecture</a>. (picard)</p></li>
+<li><p>Fix the Read groups see <a href="http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41">this slide</a> (picard)</p></li>
+<li><p>Call SNPs with SAMTools - refer to the SAMtools manpage on mpileup for more details. <a href="http://samtools.sourceforge.net/">http://samtools.sourceforge.net/</a> <a href="http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide43">this slide</a></p></li>
+<li><p>Call SNPs with GATK, using <a href="http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide44">example from the lecture</a></p></li>
+<li><p>Run Filtering steps on GATK output SNPs to remove potential biased or low-quality ones using options <a href="http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide47">provided in lecture</a>.</p></li>
 <li><p>Calculate the total number of remaining SNPs. Count the lines or use <a href="http://vcftools.sourceforge.net/">vcftools</a>.</p></li>
 <li><p>For advanced users, intersect this list of SNPs (in the VCF file) with the GFF for the genome to determine which SNPs are in coding regions. Read up on <a href="http://code.google.com/p/bedtools/">BEDTools</a>. The genome annotation in GFF is available in the folder where the genome was downloaded from <a href="http://yeastgenome.org">SGD</a>.</p></li>
 <li><p>Open the genome file for Saccharomces in IGV. <a href="http://www.broadinstitute.org/igv/">http://www.broadinstitute.org/igv/</a> is here.</p></li>
@@ -89,7 +89,7 @@ $ head -n <span class="dv">16425</span> S288C_reference_genome_R64<span class="d
 <ol start="3" type="1">
 <li><p>SRA data are available to download here. There is a script and table listing the sources for some strain data. You can use the Aspera pluging for fast downloading or wget/curl will work. The fastq-dump script as part of the sratoolkit is needed.</p>
 <ul>
-<li>The download script to obtain all the data is here <a href="https://github.com/hyphaltip/CSHL_NGS/blob/master/data/download.sh">https://github.com/hyphaltip/CSHL_NGS/blob/master/data/download.sh</a> or in the github repo you checked out - <code>CSHL_NGS/data/download.sh</code></li>
+<li>The download script to obtain all the data is here <a href="https://github.com/srobb1/CSHL_NGS/blob/master/download_full_data/download.sh">https://github.com/srobb1/CSHL_NGS/blob/master/download_full_data/download.sh</a> or in the github repo you checked out - <code>CSHL_NGS/data/download.sh</code></li>
 </ul></li>
 </ol>
 </body>

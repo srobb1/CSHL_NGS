@@ -1,4 +1,4 @@
-Data and scripts for this Tutorial and Lectures are available at [https://github.com/hyphaltip/CSHL_NGS](https://github.com/hyphaltip/CSHL_NGS).
+Data and scripts for this Tutorial and Lectures are available at [https://github.com/srobb1/CSHL_NGS.git](https://github.com/srobb1/CSHL_NGS.git).
 
 See the answers at
 [Tutorial answers](/CSHL_NGS/lecture/Tutorial_steps.table.html) and
@@ -12,7 +12,7 @@ Preparation Steps
 
 Using Git on the command line (or install Git for Mac)
 
-    $ git clone git://github.com/hyphaltip/CSHL_NGS.git
+      $git clone https://github.com/srobb1/CSHL_NGS.git
 
 1. The data you need are available from here. There are directions at
    the bottom if you want to see how the data are obtained but not
@@ -44,21 +44,21 @@ Tutorial
 
 3. Align reads to the genome using BWA. This requires you to also
    build and index for the genome. See the
-   [lecture notes](http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide34). (bwa index)
+   [lecture notes](http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide34). (bwa index)
 
 4. Realign reads with Picard and GATK
-   [based on lecture](http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41). (picard)
+   [based on lecture](http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41). (picard)
 
 5. Fix the Read groups see
-   [this slide](http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41) (picard)
+   [this slide](http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide41) (picard)
 
 1. Call SNPs with SAMTools - refer to the SAMtools manpage on mpileup
    for more
-   details. [http://samtools.sourceforge.net/](http://samtools.sourceforge.net/) [this slide](http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide43)
+   details. [http://samtools.sourceforge.net/](http://samtools.sourceforge.net/) [this slide](http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide43)
 
-1. Call SNPs with GATK, using [example from the lecture](http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide44)
+1. Call SNPs with GATK, using [example from the lecture](http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide44)
 
-1. Run Filtering steps on GATK output SNPs to remove potential biased or low-quality ones using options [provided in lecture](http://hyphaltip.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide47).
+1. Run Filtering steps on GATK output SNPs to remove potential biased or low-quality ones using options [provided in lecture](http://srobb1.github.com/CSHL_NGS/lecture/NGS_DNA.slides.html#slide47).
 
 1. Calculate the total number of remaining SNPs. Count the lines or use [vcftools](http://vcftools.sourceforge.net/).
 
@@ -118,4 +118,4 @@ pluging for fast downloading or wget/curl will work. The fastq-dump
 script as part of the sratoolkit is needed. 
 	  
     * The download script to obtain all the data is here
-      [https://github.com/hyphaltip/CSHL_NGS/blob/master/data/download.sh](https://github.com/hyphaltip/CSHL_NGS/blob/master/data/download.sh) or in the github repo you checked out - ```CSHL_NGS/data/download.sh```
+      [https://github.com/srobb1/CSHL_NGS/blob/master/download_full_data/download.sh](https://github.com/srobb1/CSHL_NGS/blob/master/download_full_data/download.sh) or in the github repo you checked out - ```CSHL_NGS/data/download.sh```
