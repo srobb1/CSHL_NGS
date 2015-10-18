@@ -23,19 +23,18 @@
 #Sequence data sources
 
 * Sanger
-    * Long reads, high quality, expensive
+    * 700bp reads, high quality, expensive
+* 454
+    * 1000 bp, some homopolymer seq problems,
+    * Expensive ($10k for 1M reads), recent chemistry problems
+	* Going away in [1 year](http://www.bio-itworld.com/2013/10/16/six-years-after-acquisition-roche-quietly-shutters-454.html)
 * Illumina
     * Short reads 50-150bp (HiSeq) and up to 250bp (MiSeq)
     * Cheap and Dense read total (HiSeq 200-300M paired-reads for ~$2k)
-* 454
-    * Longish reads 300-500 bp, some homopolymer seq problems,
-    * Expensive ($10k for 1M reads), recent chemistry problems
-	* Going away in [3 years](http://www.bio-itworld.com/2013/10/16/six-years-after-acquisition-roche-quietly-shutters-454.html)
 * PacBio
-    * Long reads, but small amount (10k)
-    * Low seq quality and not cheap
-    * Can help improve assemblies, probably not sufficient for an
-      assembly alone (too expensive to get deep enough coverage)
+    * Long reads (averaging > 10 kb), but small amount ( 1 Gb across 50k reads)
+    * Low seq quality (before correction) and not cheap 
+    * Good for reference genome and refernce transcriptome.
 
 ---
 #Sequence data source (cont)
@@ -52,6 +51,14 @@
 Glenn TC, "Field guide to next-generation DNA sequencers" DOI:[10.1111/j.1755-0998.2011.03024.x](http://dx.doi.org/10.1111/j.1755-0998.2011.03024.x)
 
 ![Seqcompare](images/sequencer_compare.png "Comparing sequencers")
+
+
+
+---
+#Sequencer comparisons
+
+
+![SeqcompareTable](images/NGS_comparison.png "Comparing sequencers")
 
 ---
 #File formats
@@ -96,16 +103,17 @@ Colorspace (SOLiD) - CSFASTQ
     J - Illumina 1.5+ Phred+64,  raw reads typically (3, 40)
         with 0=unused, 1=unused, 2=Read Segment Quality Control Indicator (bold) 
         (Note: See discussion above). 
+    L - Illumina 1.8+ Phred+33,  raw reads typically (0, 41)
 
 ---
 #Read naming
 
-ID is usually the machine ID followed by flowcell number column, row,
-cell of the read.
+ID is usually a combination of the machine ID, run number, flowcell ID, lane, column, 
+row, adapter seqeunce, and read pair number.
 
 Paired-End naming can exist because data are in two file, first read
 in file 1 is paired with first read in file 2, etc. This is how data
-come from the sequence base calling pipeline.  The trailing /1 and /2
+comes from the sequence base calling pipeline.  The trailing /1 and /2
 indicate they are the read-pair 1 or 2. 
 
 In this case #CTTGTA indicates the barcode sequence since this was
@@ -150,12 +158,12 @@ Orientation of the reads depends on the library type. Whether they are
 
 * Trimming
     * Adaptive or a hard cutoff
-	* sickle, FASTX_toolkit, SeqPrep
+	* [sickle](https://github.com/najoshi/sickle/blob/master/README.md), [FASTX_toolkit](http://hannonlab.cshl.edu/fastx_toolkit/), [SeqPrep](https://github.com/jstjohn/SeqPrep/blob/master/README.md)
 * Additional considerations for Paired-end data
 * Evaluating quality info with reports
 
 ---
-#FASTX toolkit
+#[FASTX toolkit](http://hannonlab.cshl.edu/fastx_toolkit/commandline.html)
 
 * Useful for trimming, converting and filtering FASTQ and FASTA data
 * One gotcha - Illumina quality score changes from 64 to 33 offset
@@ -167,7 +175,7 @@ Orientation of the reads depends on the library type. Whether they are
 * fastx_collapser - to collapse identical reads. Header includes count of number in the bin
 
 ---
-#FASTX - fastx_quality_trimmer
+#[FASTX - fastq_quality_trimmer](http://hannonlab.cshl.edu/fastx_toolkit/)
 
 * Filter so that X% of the reads have quality of at least quality of N 
 * Trim reads by quality from the end so that low quality bases are removed (since that is where errors tend to be)
@@ -176,12 +184,12 @@ Orientation of the reads depends on the library type. Whether they are
 * Can also require a minimum length read after the trimming is complete
 
 ---
-#FASTX toolkit - fastx_trimmer
+#FASTX toolkit - [fastx_trimmer](http://hannonlab.cshl.edu/fastx_toolkit/commandline.html#fastx_trimmer_usage)
 
 * Hard cutoff in length is sometimes better
 * Sometimes genome assembly behaves better if last 10-15% of reads are trimmed off
 * Adaptive quality trimming doesn't always pick up the low quality bases
-* With MiSeq 250 bp reads, but last 25-30 often low quality and HiSeq with 150 bp often last 20-30 not good quality
+* With MiSeq 250 bp reads, last 25-30 often low quality and HiSeq with 150 bp often last 20-30 not good quality
 * Removing this potential noise can help the assembler perform better
 
 ---
@@ -195,21 +203,21 @@ Orientation of the reads depends on the library type. Whether they are
 ---
 #Trimming adaptors
 
-* A little more tricky, for smallRNA data will have an adaptor on 3' end (usually)
-* To trim needs to be a matched against the adaptor library - some nuances to make this work for all cases. 
+* A little more tricky, for smallRNA data. This will have an adaptor on 3' end (usually)
+* Sequence to be trim needs to be a matched against the adaptor library - some nuances to make this work for all cases. 
     * What if adaptor has low quality base? Indel? Must be able to tolerate mismatch
-* Important to get right as the length of the smallRNAs will be calculated from these data
+* Important to get right. The length of the smallRNAs will be calculated from these data
 * Similar approach to matching for vector sequence so a library of adaptors and vector could be used to match against
 * Sometimes will have adaptors in genomic NGS sequence if the library prep did not have a tight size distribution. 
 
 ---
 #Trimming adaptors - tools
 
-* cutadapt - Too to matching with alignment. Can search with multiple
+* [cutadapt](https://cutadapt.readthedocs.org/en/stable/) - Error tolerant matching. Can search with multiple
   adaptors but is pipelining each one so will take 5X as long if you
   match for 5 adaptors.
 
-* SeqPrep - Preserves paired-end data and also quality filtering along with adaptor matching
+* [SeqPrep](https://github.com/jstjohn/SeqPrep/blob/master/README.md) - Preserves paired-end data and also quality filtering along with adaptor matching
 
 ---
 #FASTQC for quality control
@@ -217,36 +225,40 @@ Orientation of the reads depends on the library type. Whether they are
 * Looking at distribution of quality scores across all sequences helpful to judge quality of run
 * Overrepresented Kmers also helpful to examine for bias in sequence
 * Overrepresented sequences can often identify untrimmed primers/adaptors
+
+
+---
+# FASTQC:Example Reports
+
+The good, the bad, and the ugly.
+
+[FASTQC Project](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+
+![PerBase](images/FASTQC_GBU.png "FASTQC sample reports")
  
 ---
-#FASTQC  - per base quality
+#FASTQC  - [per base quality](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/2%20Per%20Base%20Sequence%20Quality.html)
 
 ![PerBase](images/per_base_quality.png "FASTQC per base quality")
 
 ---
-#FASTQC  - per seq quality
+#FASTQC  - [per seq quality](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/3%20Per%20Sequence%20Quality%20Scores.html)
 
 ![PerSeq](images/per_sequence_quality.png "FASTQC per sequence quality")
 
 ---
-#FASTQC  - per seq GC content
+#FASTQC  - [per seq GC content](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/5%20Per%20Sequence%20GC%20Content.html)
 
 ![PerGC](images/per_sequence_gc_content.png "FASTQC per sequence GC")
-
 ---
-#FASTQC  - Sequence Length
+#FASTQC  - [Sequence Length](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/7%20Sequence%20Length%20Distribution.html)
 
 ![PerLength](images/sequence_length_distribution.png "FASTQC length distribution")
 
 ---
-#FASTQC  - kmer distribution
+#FASTQC  - [kmer distribution](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/11%20Kmer%20Content.html)
 
 ![kmer](images/kmer_profiles.png "FASTQC kmer distribution")
-
----
-#FASTQC  - kmer table
-
-![kmer](images/kmer_table.png "FASTQC kmer table")
 
 ---
 #Getting ready to align sequence
@@ -394,13 +406,13 @@ alignment algorithm. All in one step now to create the sam file.
 
 Can also convert and sort all in one go with Picard
 
-    $ java -Xmx2g -jar SortSam.jar INPUT=W303.sam OUT=W303.sorted.bam \
+    $ java -Xmx2g -jar picard.jar SortSam INPUT=W303.sam OUT=W303.sorted.bam \
      SORT_ORDER=coordinate VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true
 
 Or if you already created a bam file, but need to sort it, the input
 can also be a nam file
 
-    $ java -Xmx2g -jar SortSam.jar INPUT=W303.unsrt.bam OUT=W303.sorted.bam \
+    $ java -Xmx2g -jar picard.jar SortSam INPUT=W303.unsrt.bam OUT=W303.sorted.bam \
      SORT_ORDER=coordinate VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true
 
 Lots of other resources for SAM/BAM manipulation in Picard documentation on the web [http://picard.sourceforge.net/command-line-overview.shtml](http://picard.sourceforge.net/command-line-overview.shtml).
@@ -442,10 +454,12 @@ Lots of other resources for SAM/BAM manipulation in Picard documentation on the 
 
 ![SAM Table](images/SAMFormatTable.png "SAM 11 columns")
 
+[SAM Flag calculator](https://broadinstitute.github.io/picard/explain-flags.html)
+
 ---
 #Read Groups
 
-One component of SAM files is the idea of processing multiple files, but that these track back to specific samples or replicates. 
+One component of SAM files is the idea of processing multiple files, with each tracking back to specific samples or replicates. 
 
 This can be coded in the header of the SAM file
 
@@ -456,7 +470,7 @@ can be combined together into a single SAM file and that the origin of
 the reads can still be preserved. This is really useful when you want
 to call SNPs across multiple samples.
 
-The AddOrReplaceReadGroups.jar command set in Picard is really useful
+The AddOrReplaceReadGroups command in Picard is really useful
 for manipulating these.
 
 ---
@@ -484,7 +498,7 @@ the whole path where they are located (unless are in your current directory)
 
 Need to Deduplicate reads
 
-    $ java -Xmx3g -jar picard-tools/MarkDuplicates.jar INPUT=W303.sorted.bam \
+    $ java -Xmx3g -jar picard.jar MarkDuplicates INPUT=W303.sorted.bam \
       OUTPUT=W303.dedup.bam METRICS_FILE=W303.dedup.metrics \
       CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT
 
@@ -495,7 +509,7 @@ record. We'd do this for each file RGLB would be processed as a bam
 file then later combine them. For now we will just treat it all like
 one sample
 
-    $ java -Xmx3g -jar $PICARD/AddOrReplaceReadGroups.jar INPUT=W303.dedup.bam \
+    $ java -Xmx3g -jar picard.jar AddOrReplaceReadGroups INPUT=W303.dedup.bam \
       OUTPUT=W303.readgroup.bam SORT_ORDER=coordinate CREATE_INDEX=True \
       RGID=W303 RGLB=SRR527545 RGPL=Illumina RGPU=Genomic RGSM=W303 \
       VALIDATION_STRINGENCY=SILENT
